@@ -144,8 +144,7 @@
   </script>
 
   <style>
-    /* No offline overlay — using local `ruffle.js` placed next to this HTML */
-    /* Responsive mobile controls using clamped sizes so buttons don't grow too large */
+    /* Responsive mobile controls with translucent blurred buttons */
     :root {
       --ctrl-gap: clamp(6px, 0.8vmin, 14px);
       --btn-size: clamp(40px, 6vmin, 64px); /* base button */
@@ -154,40 +153,128 @@
       --enter-height: clamp(44px, 9vmin, 96px);
     }
 
-    #mobile-controls { position: fixed; inset: auto 1rem 1rem 1rem; z-index: 9999; pointer-events: auto; }
-    /* Move D-pad up so it does not overlap on-screen level text; use viewport-based offset */
-    .controls-left { position: fixed; left: calc(env(safe-area-inset-left, 0px) + 1rem); bottom: calc(env(safe-area-inset-bottom, 0px) + 14vh); }
-    .controls-right { position: fixed; right: calc(env(safe-area-inset-right, 0px) + 1rem); top: 1rem; bottom: 1rem; pointer-events: none; }
+    #mobile-controls {
+      position: fixed;
+      inset: auto 1rem 1rem 1rem;
+      z-index: 9999;
+      pointer-events: auto;
+    }
 
-    /* D-pad arranged with up button above left/right; sizes derived from --btn-size */
-    .dpad { display: grid; grid-template-areas: "up up up" "left center right"; grid-template-columns: var(--btn-size) var(--btn-size) var(--btn-size); grid-auto-rows: var(--btn-size); gap: var(--ctrl-gap); align-items: center; }
+    .controls-left {
+      position: fixed;
+      left: calc(env(safe-area-inset-left, 0px) + 1rem);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 14vh);
+    }
+
+    .controls-right {
+      position: fixed;
+      right: calc(env(safe-area-inset-right, 0px) + 1rem);
+      top: 1rem;
+      bottom: 1rem;
+      pointer-events: none;
+    }
+
+    .dpad {
+      display: grid;
+      grid-template-areas:
+        "up up up"
+        "left center right";
+      grid-template-columns: var(--btn-size) var(--btn-size) var(--btn-size);
+      grid-auto-rows: var(--btn-size);
+      gap: var(--ctrl-gap);
+      align-items: center;
+    }
+
     .d-up { grid-area: up; }
     .d-left { grid-area: left; }
     .d-center { grid-area: center; }
     .d-right { grid-area: right; }
 
-    /* Base button style uses variables so it scales with viewport */
-    .btn { background: #000; color: #fff; border: 2px solid rgba(255,255,255,0.95); border-radius: calc(var(--btn-size) * 0.125); width: var(--btn-size); height: var(--btn-size); font-size: calc(var(--btn-size) * 0.42); display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 10px rgba(0,0,0,0.6); pointer-events: auto; }
-    .btn:focus { outline: 2px solid rgba(255,255,255,0.18); }
-    .btn.large { width: calc(var(--btn-size) * var(--btn-large-mult)); height: calc(var(--btn-size) * var(--btn-large-mult)); font-size: calc(var(--btn-size) * 0.56); border-radius: calc(var(--btn-size) * 0.14); }
-    .enter-top { position: fixed; top: 1rem; right: 1rem; width: var(--enter-width); height: var(--enter-height); font-size: calc(var(--enter-height) * 0.45); border-radius: calc(var(--enter-height) * 0.14); pointer-events: auto; }
-
-    .actions-bottom { position: fixed; right: calc(env(safe-area-inset-right, 0px) + 1rem); bottom: calc(env(safe-area-inset-bottom, 0px) + 14vh); display:flex; gap: var(--ctrl-gap); pointer-events: auto; flex-direction: row-reverse; align-items: flex-end; }
-
-    .btn:active, .btn.active { transform: scale(0.96); background: rgba(255,255,255,0.06); }
-
-    /* Keep the jump button on the far right and nudge Z/R out of its way */
-    .actions-bottom .action { transform: translateY(calc(-0.15 * var(--btn-size))); }
-    .btn.jump { width: calc(var(--btn-size) * var(--btn-large-mult)); height: calc(var(--btn-size) * var(--btn-large-mult)); font-size: calc(var(--btn-size) * 0.56); border-radius: calc(var(--btn-size) * 0.14); }
-
-    /* Ensure child controls within the right column are clickable despite parent pointer-events:none */
-    .controls-right .btn, .controls-right .actions-bottom { pointer-events: auto; }
-
-    /* On very wide/larger screens slightly reduce control size so they don't dominate */
-    @media (min-width: 900px) {
-      :root { --btn-size: clamp(40px, 4.2vmin, 56px); }
-      .enter-top { width: clamp(80px, 9vw, 120px); height: clamp(36px, 5.5vh, 56px); }
+    /* Base button style: translucent with blur */
+    .btn {
+      background: rgba(0, 0, 0, 0.4); /* translucent black */
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      border-radius: calc(var(--btn-size) * 0.125);
+      width: var(--btn-size);
+      height: var(--btn-size);
+      font-size: calc(var(--btn-size) * 0.42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+      pointer-events: auto;
+      backdrop-filter: blur(6px); /* blur effect */
+      -webkit-backdrop-filter: blur(6px); /* Safari support */
     }
-  </style>
+
+    .btn:focus {
+      outline: 2px solid rgba(255,255,255,0.18);
+    }
+
+    .btn.large {
+      width: calc(var(--btn-size) * var(--btn-large-mult));
+      height: calc(var(--btn-size) * var(--btn-large-mult));
+      font-size: calc(var(--btn-size) * 0.56);
+      border-radius: calc(var(--btn-size) * 0.14);
+    }
+
+    .enter-top {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      width: var(--enter-width);
+      height: var(--enter-height);
+      font-size: calc(var(--enter-height) * 0.45);
+      border-radius: calc(var(--enter-height) * 0.14);
+      pointer-events: auto;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .actions-bottom {
+      position: fixed;
+      right: calc(env(safe-area-inset-right, 0px) + 1rem);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 14vh);
+      display: flex;
+      gap: var(--ctrl-gap);
+      pointer-events: auto;
+      flex-direction: row-reverse;
+      align-items: flex-end;
+    }
+
+    .btn:active,
+    .btn.active {
+      transform: scale(0.96);
+      background: rgba(255,255,255,0.12); /* lighter translucent when pressed */
+    }
+
+    .actions-bottom .action {
+      transform: translateY(calc(-0.15 * var(--btn-size)));
+    }
+
+    .btn.jump {
+      width: calc(var(--btn-size) * var(--btn-large-mult));
+      height: calc(var(--btn-size) * var(--btn-large-mult));
+      font-size: calc(var(--btn-size) * 0.56);
+      border-radius: calc(var(--btn-size) * 0.14);
+    }
+
+    .controls-right .btn,
+    .controls-right .actions-bottom {
+      pointer-events: auto;
+    }
+
+    @media (min-width: 900px) {
+      :root {
+        --btn-size: clamp(40px, 4.2vmin, 56px);
+      }
+      .enter-top {
+        width: clamp(80px, 9vw, 120px);
+        height: clamp(36px, 5.5vh, 56px);
+      }
+    }
+</style>
 </body>
 </html>
