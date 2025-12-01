@@ -6,7 +6,12 @@ const PRECACHE_URLS = [
   '/bfdia-5b-android/5b.swf',
   '/bfdia-5b-android/levels.txt',
   '/bfdia-5b-android/core.ruffle.0a7030ff7c360f6dee99.js',
-  '/bfdia-5b-android/core.ruffle.e760cff211bad8506805.js'
+  '/bfdia-5b-android/core.ruffle.e760cff211bad8506805.js',
+  '/bfdia-5b-android/2499bc973883db26d7e7.wasm',
+  '/bfdia-5b-android/b7e47634d08feb9559db.wasm',
+  '/bfdia-5b-android/package.json',
+  '/bfdia-5b-android/favicon.ico',
+  '/bfdia-5b-android/b7e47634d08feb9559db.wasm'
 ];
 
 self.addEventListener('install', (event) => {
@@ -52,4 +57,5 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
 
