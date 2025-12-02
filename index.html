@@ -210,8 +210,12 @@
     /* Responsive mobile controls with translucent blurred buttons */
     :root {
       --ctrl-gap: clamp(6px, 0.8vmin, 14px);
+      --action-gap: clamp(12px, 1.4vmin, 26px); /* larger gap for action cluster */
       --btn-size: clamp(40px, 6vmin, 64px); /* base button */
       --btn-large-mult: 1.35;
+      --action-scale: 1.12; /* visual scale for action buttons (doesn't affect layout) */
+      --btn-press-scale: 0.96; /* multiplier when pressing */
+      --big-mult: 3; /* requested 3x visual multiplier */
       --enter-width: clamp(84px, 16vmin, 160px);
       --enter-height: clamp(44px, 9vmin, 96px);
     }
@@ -294,6 +298,14 @@
       pointer-events: auto;
       backdrop-filter: blur(6px); /* blur effect */
       -webkit-backdrop-filter: blur(6px); /* Safari support */
+      /* transform variables: use translate/scale for visual sizing without changing layout
+         --btn-translate: vertical offset (used by some clusters)
+         --btn-default-scale: default visual scale for the button
+      */
+      --btn-translate: 0;
+      --btn-default-scale: 1;
+      transform: translateY(var(--btn-translate)) scale(var(--btn-default-scale));
+      transform-origin: center center;
     }
 
     .btn:focus {
@@ -326,7 +338,7 @@
       right: calc(env(safe-area-inset-right, 0px) + 1rem);
       bottom: calc(env(safe-area-inset-bottom, 0px) + 14vh);
       display: flex;
-      gap: var(--ctrl-gap);
+      gap: var(--action-gap); /* increase spacing between action buttons */
       pointer-events: auto;
       flex-direction: row-reverse;
       align-items: flex-end;
@@ -334,12 +346,15 @@
 
     .btn:active,
     .btn.active {
-      transform: scale(0.96);
+      /* preserve any translate offset while reducing visual scale when pressed */
+      transform: translateY(var(--btn-translate)) scale(calc(var(--btn-default-scale) * var(--btn-press-scale)));
       background: rgba(255,255,255,0.12); /* lighter translucent when pressed */
     }
 
+    /* Actions cluster: visually lift and slightly scale without affecting layout */
     .actions-bottom .action {
-      transform: translateY(calc(-0.15 * var(--btn-size)));
+      --btn-translate: calc(-0.15 * var(--btn-size));
+      --btn-default-scale: var(--action-scale);
     }
 
     /* Stack G above Z in a column and match sizes */
@@ -347,7 +362,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: calc(var(--ctrl-gap) * 0.4);
+      gap: calc(var(--action-gap) * 0.45); /* slightly larger vertical spacing */
       pointer-events: auto;
     }
     .stack-up .up-g {
@@ -356,6 +371,22 @@
       height: calc(var(--btn-size) * var(--btn-large-mult));
       font-size: calc(var(--btn-size) * 0.56);
       border-radius: calc(var(--btn-size) * 0.14);
+      --btn-default-scale: var(--action-scale);
+    }
+
+    /* Make the D-pad left/right and right-side action buttons visually 3x larger
+       while preserving layout by using transforms only. */
+    .d-left, .d-right {
+      --btn-default-scale: calc(var(--btn-default-scale) * var(--big-mult));
+      transform-origin: center center;
+    }
+
+    .actions-bottom .action,
+    .stack-up .up-g,
+    .btn.jump {
+      /* Multiply whatever default scale is set for action buttons by the big multiplier */
+      --btn-default-scale: calc(var(--btn-default-scale) * var(--big-mult));
+      transform-origin: center center;
     }
 
     .btn.jump {
